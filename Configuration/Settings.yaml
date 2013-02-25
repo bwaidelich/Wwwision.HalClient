@@ -1,0 +1,8 @@
+Wwwision:
+  HalClient:
+    apiRootUri: '/api'
+    defaultHeaders:
+      'Accept': 'application/json'
+    requestEngineOptions:
+      # CURLOPT_TIMEOUT:
+      13: 20

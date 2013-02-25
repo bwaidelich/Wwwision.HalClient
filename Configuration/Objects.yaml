@@ -1,0 +1,9 @@
+Wwwision\HalClient\Client:
+  properties:
+    requestCache:
+      object:
+        factoryObjectName: TYPO3\Flow\Cache\CacheManager
+        factoryMethodName: getCache
+        arguments:
+          1:
+            value: Wwwision_HalClient_Client
