@@ -162,21 +162,19 @@ class Resource implements \ArrayAccess {
 	}
 
 	/**
-	 * @param mixed $offset
+	 * @param mixed $propertyName
 	 * @param mixed $value
-	 * @throws Exception
 	 */
-	public function offsetSet($offset, $value) {
-		throw new Exception('The state of a resource can\'t be changed!');
+	public function offsetSet($propertyName, $value) {
+		$this->state[$propertyName] = $value;
 	}
 
 	/**
-	 * @param mixed $offset
+	 * @param mixed $propertyName
 	 * @return void
-	 * @throws Exception
 	 */
-	public function offsetUnset($offset) {
-		throw new Exception('The state of a resource can\'t be changed!');
+	public function offsetUnset($propertyName) {
+		unset($this->state[$propertyName]);
 	}
 }
 ?>
