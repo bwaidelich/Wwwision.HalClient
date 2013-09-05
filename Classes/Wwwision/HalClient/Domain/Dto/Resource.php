@@ -3,7 +3,6 @@ namespace Wwwision\HalClient\Domain\Dto;
 
 /*                                                                        *
  * This script belongs to the TYPO3 Flow package "Wwwision.HalClient".    *
- *                                                                        *
  *                                                                        */
 
 use TYPO3\Flow\Annotations as Flow;
@@ -106,7 +105,6 @@ class Resource implements \ArrayAccess {
 		$this->state = call_user_func($this->loadResourceClosure, $this->uri);
 		$this->extractEmbeddedResources();
 		$this->extractLinkedResources();
-		$this->state = $this->state;
 		$this->fullyLoaded = TRUE;
 	}
 

@@ -12,6 +12,13 @@ namespace Wwwision\HalClient;
  *                                                                        */
 
 use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Flow\Cache\Frontend\StringFrontend;
+use TYPO3\Flow\Http\Client\Browser;
+use TYPO3\Flow\Http\Client\CurlEngine;
+use TYPO3\Flow\Http\Request;
+use TYPO3\Flow\Http\Uri;
+use TYPO3\Flow\Utility\Arrays;
+use Wwwision\HalClient\Domain\Dto\Resource;
 
 /**
  * The HAL Client
@@ -19,7 +26,7 @@ use TYPO3\Flow\Annotations as Flow;
 class Client {
 
 	/**
-	 * @var \TYPO3\Flow\Http\Client\Browser
+	 * @var Browser
 	 */
 	protected $browser;
 
@@ -49,7 +56,7 @@ class Client {
 	protected $state = array();
 
 	/**
-	 * @var \TYPO3\Flow\Cache\Frontend\StringFrontend
+	 * @var StringFrontend
 	 * @Flow\Inject
 	 */
 	protected $requestCache;
@@ -75,15 +82,15 @@ class Client {
 	 * @return void
 	 */
 	public function initializeObject() {
-		$this->browser = new \TYPO3\Flow\Http\Client\Browser();
-		$requestEngine = new \TYPO3\Flow\Http\Client\CurlEngine();
+		$this->browser = new Browser();
+		$requestEngine = new CurlEngine();
 		if (isset($this->settings['requestEngineOptions'])) {
 			foreach ($this->settings['requestEngineOptions'] as $optionName => $optionValue) {
 				$requestEngine->setOption($optionName, $optionValue);
 			}
 		}
 		$this->browser->setRequestEngine($requestEngine);
-		$this->defaultHeaders = \TYPO3\Flow\Utility\Arrays::arrayMergeRecursiveOverrule($this->defaultHeaders, $this->settings['defaultHeaders']);
+		$this->defaultHeaders = Arrays::arrayMergeRecursiveOverrule($this->defaultHeaders, $this->settings['defaultHeaders']);
 	}
 
 	/**
@@ -98,7 +105,7 @@ class Client {
 
 	/**
 	 * @param string $resourceName
-	 * @return \Wwwision\HalClient\Domain\Dto\Resource
+	 * @return Resource
 	 * @throws Exception\UnknownResourceException
 	 */
 	public function getResourceByName($resourceName) {
@@ -112,11 +119,11 @@ class Client {
 
 	/**
 	 * @param string $resourceUri
-	 * @return \Wwwision\HalClient\Domain\Dto\Resource
+	 * @return Resource
 	 */
 	public function getResourceByUri($resourceUri) {
 		$result = $this->sendRequest($resourceUri, 'GET');
-		return new \Wwwision\HalClient\Domain\Dto\Resource($result, $resourceUri, function($resourceUri) {
+		return new Resource($result, $resourceUri, function($resourceUri) {
 			return $this->sendRequest($resourceUri);
 		});
 	}
@@ -134,7 +141,7 @@ class Client {
 		if ($method === 'GET' && $this->requestCache->has($cacheIdentifier)) {
 			return json_decode($this->requestCache->get($cacheIdentifier), TRUE);
 		}
-		$request = \TYPO3\Flow\Http\Request::create(new \TYPO3\Flow\Http\Uri($uri), $method, $arguments);
+		$request = Request::create(new Uri($uri), $method, $arguments);
 		foreach ($this->defaultHeaders as $headerName => $headerValue) {
 			$request->setHeader($headerName, $headerValue);
 		}
