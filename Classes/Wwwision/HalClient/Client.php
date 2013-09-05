@@ -105,16 +105,25 @@ class Client {
 
 	/**
 	 * @param string $resourceName
-	 * @return Resource
+	 * @return \Wwwision\HalClient\Domain\Dto\Resource
 	 * @throws Exception\UnknownResourceException
 	 */
 	public function getResourceByName($resourceName) {
+		$resourceUri = $this->getResourceUriByName($resourceName);
+		return $this->getResourceByUri($resourceUri);
+	}
+
+	/**
+	 * @param string $resourceName
+	 * @return string
+	 * @throws Exception\UnknownResourceException
+	 */
+	public function getResourceUriByName($resourceName) {
 		$this->initialize();
 		if (!isset($this->state['_links'][$resourceName])) {
 			throw new Exception\UnknownResourceException('Resource "' . $resourceName . '" is unknown');
 		}
-		$resourceUri = $this->state['_links'][$resourceName]['href'];
-		return $this->getResourceByUri($resourceUri);
+		return $this->state['_links'][$resourceName]['href'];
 	}
 
 	/**
