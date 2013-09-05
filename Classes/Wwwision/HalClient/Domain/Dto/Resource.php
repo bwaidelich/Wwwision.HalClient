@@ -119,6 +119,7 @@ class Resource implements \ArrayAccess {
 	 * @return array<Resource>
 	 */
 	public function getLinkedResources() {
+		$this->load();
 		return $this->linkedResources;
 	}
 
@@ -126,6 +127,7 @@ class Resource implements \ArrayAccess {
 	 * @return array<Resource>
 	 */
 	public function getEmbeddedResources() {
+		$this->load();
 		return $this->embeddedResources;
 	}
 
