@@ -142,6 +142,10 @@ class Client {
 			return json_decode($this->requestCache->get($cacheIdentifier), TRUE);
 		}
 		$request = Request::create(new Uri($uri), $method, $arguments);
+
+		// FIXME this is currently required as work around for http://forge.typo3.org/issues/51763
+		$request->setContent('');
+
 		foreach ($this->defaultHeaders as $headerName => $headerValue) {
 			$request->setHeader($headerName, $headerValue);
 		}
