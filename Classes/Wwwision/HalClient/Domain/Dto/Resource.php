@@ -124,11 +124,33 @@ class Resource implements \ArrayAccess {
 	}
 
 	/**
+	 * Returns the linked resource, or NULL if not existing
+	 *
+	 * @param string $resourceName
+	 * @return Resource
+	 */
+	public function getLinkedResource($resourceName) {
+		$linkedResources = $this->getLinkedResources();
+		return isset($linkedResources[$resourceName]) ? $linkedResources[$resourceName] : NULL;
+	}
+
+	/**
 	 * @return array<Resource>
 	 */
 	public function getEmbeddedResources() {
 		$this->load();
 		return $this->embeddedResources;
+	}
+
+	/**
+	 * Returns the embedded resource, or NULL if not existing
+	 *
+	 * @param string $resourceName
+	 * @return Resource
+	 */
+	public function getEmbeddedResource($resourceName) {
+		$embeddedResources = $this->getEmbeddedResources();
+		return isset($embeddedResources[$resourceName]) ? $embeddedResources[$resourceName] : NULL;
 	}
 
 	/**
