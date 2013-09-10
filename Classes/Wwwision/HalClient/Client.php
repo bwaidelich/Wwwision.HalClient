@@ -31,14 +31,19 @@ class Client {
 	protected $browser;
 
 	/**
-	 * @var array
+	 * @var string
 	 */
-	protected $settings;
+	protected $baseUri;
 
 	/**
 	 * @var string
 	 */
-	protected $baseUri;
+	protected $apiRootPath;
+
+	/**
+	 * @var string
+	 */
+	protected $apiRootUri;
 
 	/**
 	 * @var array
@@ -62,20 +67,21 @@ class Client {
 	protected $requestCache;
 
 	/**
-	 * @param array $settings
-	 * @return void
-	 */
-	public function injectSettings($settings) {
-		$this->settings = $settings;
-	}
-
-	/**
 	 * @param string $baseUri
 	 * @param array $defaultHeaders
 	 */
-	public function __construct($baseUri, array $defaultHeaders = array()) {
+
+	/**
+	 * @param string $baseUri base URI of the API
+	 * @param array $defaultHeaders optional headers to be sent with every request in the format array('<header-name>' => '<header-value>', ...)
+	 * @param array $requestEngineOptions optional configuration options being passed to the request engine. Expected format: array('<option-name>' => '<option-value>', ...)
+	 * @param string $apiRootPath optional root (home) path of the API. e.g. "api/"
+	 */
+	public function __construct($baseUri, array $defaultHeaders = array(), array $requestEngineOptions = array(), $apiRootPath = '') {
 		$this->baseUri = $baseUri;
 		$this->defaultHeaders = $defaultHeaders;
+		$this->requestEngineOptions = $requestEngineOptions;
+		$this->apiRootPath = $apiRootPath;
 	}
 
 	/**
@@ -84,13 +90,10 @@ class Client {
 	public function initializeObject() {
 		$this->browser = new Browser();
 		$requestEngine = new CurlEngine();
-		if (isset($this->settings['requestEngineOptions'])) {
-			foreach ($this->settings['requestEngineOptions'] as $optionName => $optionValue) {
-				$requestEngine->setOption($optionName, $optionValue);
-			}
+		foreach ($this->requestEngineOptions as $optionName => $optionValue) {
+			$requestEngine->setOption($optionName, $optionValue);
 		}
 		$this->browser->setRequestEngine($requestEngine);
-		$this->defaultHeaders = Arrays::arrayMergeRecursiveOverrule($this->defaultHeaders, $this->settings['defaultHeaders']);
 	}
 
 	/**
@@ -98,7 +101,7 @@ class Client {
 	 */
 	protected function initialize() {
 		if (!$this->initialized) {
-			$this->state = $this->sendRequest($this->settings['apiRootUri']);
+			$this->state = $this->sendRequest($this->apiRootPath);
 			$this->initialized = TRUE;
 		}
 	}
@@ -145,7 +148,7 @@ class Client {
 	 * @throws Exception\FailedRequestException if response status code is != 2**
 	 */
 	public function sendRequest($path, $method = 'GET', array $arguments = array()) {
-		$uri = $this->baseUri . $path;
+		$uri = sprintf('%s/%s', rtrim($this->baseUri, '/'), ltrim($path, '/'));
 		$cacheIdentifier = md5($uri);
 		if ($method === 'GET' && $this->requestCache->has($cacheIdentifier)) {
 			return json_decode($this->requestCache->get($cacheIdentifier), TRUE);

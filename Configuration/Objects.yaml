@@ -1,4 +1,7 @@
 Wwwision\HalClient\Client:
+  scope: singleton
+  factoryObjectName: Wwwision\HalClient\ClientFactory
+  factoryMethodName: create
   properties:
     requestCache:
       object:

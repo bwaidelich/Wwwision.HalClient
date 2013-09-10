@@ -1,6 +1,7 @@
 Wwwision:
   HalClient:
-    apiRootUri: '/api'
+    apiBaseUri: 'http://localhost'
+    apiRootPath: 'api'
     defaultHeaders:
       'Accept': 'application/json'
     requestEngineOptions:
