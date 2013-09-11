@@ -102,7 +102,8 @@ class Resource implements \ArrayAccess {
 		if ($this->fullyLoaded || $this->loadResourceClosure === NULL || $this->uri === NULL) {
 			return;
 		}
-		$this->state = call_user_func($this->loadResourceClosure, $this->uri);
+		$fullState = call_user_func($this->loadResourceClosure, $this->uri);
+		$this->state = array_merge($this->state, $fullState);
 		$this->extractEmbeddedResources();
 		$this->extractLinkedResources();
 		$this->fullyLoaded = TRUE;
