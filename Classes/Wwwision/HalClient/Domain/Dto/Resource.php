@@ -131,6 +131,7 @@ class Resource implements \ArrayAccess {
 	 * @return Resource
 	 */
 	public function getLinkedResource($resourceName) {
+		$resourceName = str_replace(':', '_', $resourceName);
 		$linkedResources = $this->getLinkedResources();
 		return isset($linkedResources[$resourceName]) ? $linkedResources[$resourceName] : NULL;
 	}
@@ -150,6 +151,7 @@ class Resource implements \ArrayAccess {
 	 * @return Resource
 	 */
 	public function getEmbeddedResource($resourceName) {
+		$resourceName = str_replace(':', '_', $resourceName);
 		$embeddedResources = $this->getEmbeddedResources();
 		return isset($embeddedResources[$resourceName]) ? $embeddedResources[$resourceName] : NULL;
 	}
