@@ -44,11 +44,11 @@ class Resource implements \ArrayAccess {
 	protected $loadResourceClosure;
 
 	/**
-	 * @param array $resourceData
+	 * @param array|string $resourceData
 	 * @param string $uri
 	 * @param \Closure $loadResourceClosure a closure that gets the resource URI and returns a Resource – usually \Wwwision\HalClient\Client::sendRequest()
 	 */
-	public function __construct(array $resourceData, $uri = NULL, \Closure $loadResourceClosure = NULL) {
+	public function __construct($resourceData, $uri = NULL, \Closure $loadResourceClosure = NULL) {
 		$this->state = $resourceData;
 		$this->uri = $uri;
 		$this->loadResourceClosure = $loadResourceClosure;
