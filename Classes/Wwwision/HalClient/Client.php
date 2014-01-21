@@ -17,7 +17,6 @@ use TYPO3\Flow\Http\Client\Browser;
 use TYPO3\Flow\Http\Client\CurlEngine;
 use TYPO3\Flow\Http\Request;
 use TYPO3\Flow\Http\Uri;
-use TYPO3\Flow\Utility\Arrays;
 use Wwwision\HalClient\Domain\Dto\Resource;
 
 /**
@@ -61,10 +60,16 @@ class Client {
 	protected $state = array();
 
 	/**
-	 * @var StringFrontend
 	 * @Flow\Inject
+	 * @var StringFrontend
 	 */
 	protected $requestCache;
+
+	/**
+	 * @Flow\Inject
+	 * @var UriTemplateProcessor
+	 */
+	protected $uriTemplateProcessor;
 
 	/**
 	 * @param string $baseUri
@@ -108,25 +113,28 @@ class Client {
 
 	/**
 	 * @param string $resourceName
+	 * @param array $variables If set, these variables will be replaced in the URI (URI template)
 	 * @return \Wwwision\HalClient\Domain\Dto\Resource
 	 * @throws Exception\UnknownResourceException
 	 */
-	public function getResourceByName($resourceName) {
-		$resourceUri = $this->getResourceUriByName($resourceName);
+	public function getResourceByName($resourceName, array $variables = array()) {
+		$resourceUri = $this->getResourceUriByName($resourceName, $variables);
 		return $this->getResourceByUri($resourceUri);
 	}
 
 	/**
 	 * @param string $resourceName
 	 * @return string
+	 * @param array $variables If set, these variables will be replaced in the URI (URI template)
 	 * @throws Exception\UnknownResourceException
 	 */
-	public function getResourceUriByName($resourceName) {
+	public function getResourceUriByName($resourceName, array $variables = array()) {
 		$this->initialize();
 		if (!isset($this->state['_links'][$resourceName])) {
 			throw new Exception\UnknownResourceException('Resource "' . $resourceName . '" is unknown');
 		}
-		return $this->state['_links'][$resourceName]['href'];
+		$uri = $this->state['_links'][$resourceName]['href'];
+		return $this->uriTemplateProcessor->expand($uri, $variables);
 	}
 
 	/**
