@@ -7,6 +7,7 @@ namespace Wwwision\HalClient\Domain\Dto;
 
 use TYPO3\Flow\Annotations as Flow;
 use Wwwision\HalClient\Exception as Exception;
+use Wwwision\HalClient\UriTemplateProcessor;
 
 /**
  * A single HAL resource
@@ -42,6 +43,12 @@ class Resource implements \ArrayAccess {
 	 * @var \Closure a closure that gets the resource URI and returns a Resource – usually \Wwwision\HalClient\Client::sendRequest()
 	 */
 	protected $loadResourceClosure;
+
+	/**
+	 * @Flow\Inject
+	 * @var UriTemplateProcessor
+	 */
+	protected $uriTemplateProcessor;
 
 	/**
 	 * @param array|string $resourceData
@@ -110,10 +117,11 @@ class Resource implements \ArrayAccess {
 	}
 
 	/**
+	 * @param array $variables If set, these variables will be replaced in the URI (URI template)
 	 * @return string
 	 */
-	public function getUri() {
-		return $this->uri;
+	public function getUri(array $variables = array()) {
+		return $this->uriTemplateProcessor->expand($this->uri, $variables);
 	}
 
 	/**
