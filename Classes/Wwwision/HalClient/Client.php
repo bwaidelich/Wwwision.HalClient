@@ -16,6 +16,7 @@ use TYPO3\Flow\Cache\Frontend\StringFrontend;
 use TYPO3\Flow\Http\Client\Browser;
 use TYPO3\Flow\Http\Client\CurlEngine;
 use TYPO3\Flow\Http\Request;
+use TYPO3\Flow\Http\Response;
 use TYPO3\Flow\Http\Uri;
 use Wwwision\HalClient\Domain\Dto\Resource;
 
@@ -157,10 +158,6 @@ class Client {
 	 */
 	public function sendRequest($path, $method = 'GET', array $arguments = array()) {
 		$uri = sprintf('%s/%s', rtrim($this->baseUri, '/'), ltrim($path, '/'));
-		$cacheIdentifier = md5($uri);
-		if ($method === 'GET' && $this->requestCache->has($cacheIdentifier)) {
-			return json_decode($this->requestCache->get($cacheIdentifier), TRUE);
-		}
 		$request = Request::create(new Uri($uri), $method, $arguments);
 
 		// FIXME this is currently required as work around for http://forge.typo3.org/issues/51763
@@ -169,14 +166,59 @@ class Client {
 		foreach ($this->defaultHeaders as $headerName => $headerValue) {
 			$request->setHeader($headerName, $headerValue);
 		}
-		$response = $this->browser->sendRequest($request);
-		if (substr($response->getStatusCode(), 0, 1) !== '2') {
-			throw new Exception\FailedRequestException('Failed to request "' . $uri . '", status: ' . $response->getStatus() .' (' . $response->getStatusCode() . ')');
+		$responseContent = $this->getCachedResponseContent($request);
+		if ($responseContent === NULL) {
+			$response = $this->browser->sendRequest($request);
+			if (substr($response->getStatusCode(), 0, 1) !== '2') {
+				throw new Exception\FailedRequestException('Failed to request "' . $uri . '", status: ' . $response->getStatus() .' (' . $response->getStatusCode() . ')');
+			}
+			$responseContent = $response->getContent();
+			$this->storeResponseContentInCache($responseContent, $request);
 		}
-		if ($method === 'GET') {
-			$this->requestCache->set($cacheIdentifier, $response->getContent());
+		return json_decode($responseContent, TRUE);
+	}
+
+	/**
+	 * @param Request $request
+	 * @return string
+	 */
+	protected function getCachedResponseContent(Request $request) {
+		if (!$this->shouldRequestBeCached($request)) {
+			return NULL;
 		}
-		return json_decode($response->getContent(), TRUE);
+		$cacheIdentifier = md5((string)$request->getUri());
+		if (!$this->requestCache->has($cacheIdentifier)) {
+			return NULL;
+		}
+		return $this->requestCache->get($cacheIdentifier);
+	}
+
+	/**
+	 * @param string $responseContent
+	 * @param Request $request
+	 * @return void
+	 */
+	protected function storeResponseContentInCache($responseContent, Request $request) {
+		if (!$this->shouldRequestBeCached($request)) {
+			return;
+		}
+		$cacheIdentifier = md5((string)$request->getUri());
+		$this->requestCache->set($cacheIdentifier, $responseContent);
+	}
+
+	/**
+	 * @param Request $request
+	 * @return boolean
+	 */
+	protected function shouldRequestBeCached(Request $request) {
+		if (!$request->isMethodSafe()) {
+			return FALSE;
+		}
+		// don't cache URIs with query parameters
+		if (strpos($request->getUri(), '?') !== FALSE) {
+			return FALSE;
+		}
+		return TRUE;
 	}
 }
 ?>
