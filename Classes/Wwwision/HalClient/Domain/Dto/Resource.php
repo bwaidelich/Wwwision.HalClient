@@ -72,13 +72,35 @@ class Resource implements \ArrayAccess {
 		}
 		foreach ($this->state['_embedded'] as $embeddedResourceName => $embeddedResourcesData) {
 			$embeddedResourceName = str_replace(':', '_', $embeddedResourceName);
-			$this->embeddedResources[$embeddedResourceName] = array();
-			foreach ($embeddedResourcesData as $embeddedResourceData) {
-				$singleResourceUri = isset($embeddedResourceData['_links']['self']['href']) ? $embeddedResourceData['_links']['self']['href'] : NULL;
-				$this->embeddedResources[$embeddedResourceName][] = new Resource($embeddedResourceData, $singleResourceUri, $this->loadResourceClosure);
+			if ($this->isArrayAssociative($embeddedResourcesData)) {
+				$this->embeddedResources[$embeddedResourceName] = $this->extractEmbeddedResourceFromResourceData($embeddedResourcesData);
+			} else {
+				$this->embeddedResources[$embeddedResourceName] = array();
+				foreach ($embeddedResourcesData as $embeddedResourceData) {
+					$this->embeddedResources[$embeddedResourceName][] = $this->extractEmbeddedResourceFromResourceData($embeddedResourceData);
+				}
 			}
 		}
 		unset($this->state['_embedded']);
+	}
+
+	/**
+	 * @param array $embeddedResourceData
+	 * @return Resource
+	 */
+	protected function extractEmbeddedResourceFromResourceData(array $embeddedResourceData) {
+		$singleResourceUri = isset($embeddedResourceData['_links']['self']['href']) ? $embeddedResourceData['_links']['self']['href'] : NULL;
+		return new Resource($embeddedResourceData, $singleResourceUri, $this->loadResourceClosure);
+	}
+
+	/**
+	 * A simple helper function to detect whether a given $array is associative or sequential
+	 *
+	 * @param array $array
+	 * @return boolean
+	 */
+	protected function isArrayAssociative(array $array) {
+		return count(array_filter(array_keys($array), 'is_string')) > 0;
 	}
 
 	/**
