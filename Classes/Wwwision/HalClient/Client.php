@@ -169,8 +169,9 @@ class Client {
 		$responseContent = $this->getCachedResponseContent($request);
 		if ($responseContent === NULL) {
 			$response = $this->browser->sendRequest($request);
+			#	\TYPO3\Flow\var_dump($response->getContent(), $uri);exit;
 			if (substr($response->getStatusCode(), 0, 1) !== '2') {
-				throw new Exception\FailedRequestException('Failed to request "' . $uri . '", status: ' . $response->getStatus() .' (' . $response->getStatusCode() . ')');
+				throw new Exception\FailedRequestException($response, sprintf('Failed to request "%s", status: "$s" (%d)', $uri, $response->getStatus(), $response->getStatusCode()));
 			}
 			$responseContent = $response->getContent();
 			$this->storeResponseContentInCache($responseContent, $request);
