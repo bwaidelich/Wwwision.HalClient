@@ -15,12 +15,12 @@ use Wwwision\HalClient\UriTemplateProcessor;
 class Resource implements \ArrayAccess {
 
 	/**
-	 * @var array<Resource>
+	 * @var array<\Wwwision\HalClient\Domain\Dto\Resource>
 	 */
 	protected $linkedResources = array();
 
 	/**
-	 * @var array<Resource>
+	 * @var array<\Wwwision\HalClient\Domain\Dto\Resource>
 	 */
 	protected $embeddedResources = array();
 
@@ -86,7 +86,7 @@ class Resource implements \ArrayAccess {
 
 	/**
 	 * @param array $embeddedResourceData
-	 * @return Resource
+	 * @return \Wwwision\HalClient\Domain\Dto\Resource
 	 */
 	protected function extractEmbeddedResourceFromResourceData(array $embeddedResourceData) {
 		$singleResourceUri = isset($embeddedResourceData['_links']['self']['href']) ? $embeddedResourceData['_links']['self']['href'] : NULL;
@@ -147,7 +147,7 @@ class Resource implements \ArrayAccess {
 	}
 
 	/**
-	 * @return array<Resource>
+	 * @return array<\Wwwision\HalClient\Domain\Dto\Resource>
 	 */
 	public function getLinkedResources() {
 		$this->load();
@@ -158,7 +158,7 @@ class Resource implements \ArrayAccess {
 	 * Returns the linked resource, or NULL if not existing
 	 *
 	 * @param string $resourceName
-	 * @return Resource
+	 * @return \Wwwision\HalClient\Domain\Dto\Resource
 	 */
 	public function getLinkedResource($resourceName) {
 		$resourceName = str_replace(':', '_', $resourceName);
@@ -167,7 +167,7 @@ class Resource implements \ArrayAccess {
 	}
 
 	/**
-	 * @return array<Resource>
+	 * @return array<\Wwwision\HalClient\Domain\Dto\Resource>
 	 */
 	public function getEmbeddedResources() {
 		$this->load();
@@ -178,7 +178,7 @@ class Resource implements \ArrayAccess {
 	 * Returns the embedded resource, or NULL if not existing
 	 *
 	 * @param string $resourceName
-	 * @return Resource
+	 * @return \Wwwision\HalClient\Domain\Dto\Resource
 	 */
 	public function getEmbeddedResource($resourceName) {
 		$resourceName = str_replace(':', '_', $resourceName);

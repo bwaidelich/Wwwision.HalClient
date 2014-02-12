@@ -140,7 +140,7 @@ class Client {
 
 	/**
 	 * @param string $resourceUri
-	 * @return Resource
+	 * @return \Wwwision\HalClient\Domain\Dto\Resource
 	 */
 	public function getResourceByUri($resourceUri) {
 		$result = $this->sendRequest($resourceUri, 'GET');
