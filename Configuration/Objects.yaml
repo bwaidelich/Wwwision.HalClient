@@ -1,7 +1,12 @@
-Wwwision\HalClient\Client:
+'Wwwision\HalClient\Client':
   scope: singleton
   factoryObjectName: Wwwision\HalClient\ClientFactory
   factoryMethodName: create
+
+'Wwwision\HalClient\Http\CacheAwareRequestEngine':
+  arguments:
+    1:
+      object: 'TYPO3\Flow\Http\Client\CurlEngine'
   properties:
     requestCache:
       object:
@@ -9,4 +14,9 @@ Wwwision\HalClient\Client:
         factoryMethodName: getCache
         arguments:
           1:
-            value: Wwwision_HalClient_Client
+            value: Wwwision_HalClient_CacheAwareRequestEngine
+
+'TYPO3\Flow\Http\Client\Browser':
+  properties:
+    requestEngine:
+      object: 'Wwwision\HalClient\Http\CacheAwareRequestEngine'
