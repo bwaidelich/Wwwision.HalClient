@@ -41,9 +41,8 @@ class ClientFactory {
 	public function create() {
 		$apiBaseUri = isset($this->settings['apiBaseUri']) ? $this->settings['apiBaseUri'] : '';
 		$defaultHeaders = isset($this->settings['defaultHeaders']) ? $this->settings['defaultHeaders'] : array();
-		$requestEngineOptions = isset($this->settings['requestEngineOptions']) ? $this->settings['requestEngineOptions'] : array();
 		$apiRootPath = isset($this->settings['apiRootPath']) ? $this->settings['apiRootPath'] : '';
-		return new Client($apiBaseUri, $defaultHeaders, $requestEngineOptions, $apiRootPath);
+		return new Client($apiBaseUri, $defaultHeaders, $apiRootPath);
 	}
 }
 

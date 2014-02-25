@@ -13,7 +13,6 @@ namespace Wwwision\HalClient;
 
 use TYPO3\Flow\Annotations as Flow;
 use TYPO3\Flow\Http\Client\Browser;
-use TYPO3\Flow\Http\Client\CurlEngine;
 use TYPO3\Flow\Http\Request;
 use TYPO3\Flow\Http\Uri;
 use Wwwision\HalClient\Domain\Dto\Resource;
@@ -73,13 +72,11 @@ class Client {
 	/**
 	 * @param string $baseUri base URI of the API
 	 * @param array $defaultHeaders optional headers to be sent with every request in the format array('<header-name>' => '<header-value>', ...)
-	 * @param array $requestEngineOptions optional configuration options being passed to the request engine. Expected format: array('<option-name>' => '<option-value>', ...)
 	 * @param string $apiRootPath optional root (home) path of the API. e.g. "api/"
 	 */
-	public function __construct($baseUri, array $defaultHeaders = array(), array $requestEngineOptions = array(), $apiRootPath = '') {
+	public function __construct($baseUri, array $defaultHeaders = array(), $apiRootPath = '') {
 		$this->baseUri = $baseUri;
 		$this->defaultHeaders = $defaultHeaders;
-		$this->requestEngineOptions = $requestEngineOptions;
 		$this->apiRootPath = $apiRootPath;
 	}
 
