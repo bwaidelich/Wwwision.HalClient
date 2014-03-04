@@ -14,6 +14,7 @@ namespace Wwwision\HalClient;
 use TYPO3\Flow\Annotations as Flow;
 use TYPO3\Flow\Http\Client\Browser;
 use TYPO3\Flow\Http\Request;
+use TYPO3\Flow\Http\Response;
 use TYPO3\Flow\Http\Uri;
 use Wwwision\HalClient\Domain\Dto\Resource;
 
@@ -85,7 +86,8 @@ class Client {
 	 */
 	protected function initialize() {
 		if (!$this->initialized) {
-			$this->state = $this->sendRequest($this->apiRootPath);
+			$this->state = $this->getResourceDataByUri($this->apiRootPath);
+			$this->browser->setFollowRedirects(FALSE);
 			$this->initialized = TRUE;
 		}
 	}
@@ -121,18 +123,56 @@ class Client {
 	 * @return \Wwwision\HalClient\Domain\Dto\Resource
 	 */
 	public function getResourceByUri($resourceUri) {
-		$result = $this->sendRequest($resourceUri, 'GET');
-		return new Resource($result, $resourceUri, function($resourceUri) {
-			return $this->sendRequest($resourceUri);
+		$resourceData = $this->getResourceDataByUri($resourceUri);
+		return new Resource($resourceData, $resourceUri, function($resourceUri) {
+			return $this->getResourceDataByUri($resourceUri);
 		});
+	}
+
+	/**
+	 * @param string $resourceEndpoint
+	 * @param array $resourceData
+	 * @return Response
+	 */
+	public function createResource($resourceEndpoint, array $resourceData) {
+		return $this->sendRequest($resourceEndpoint, 'POST', $resourceData);
+	}
+
+	/**
+	 * @param string $resourceEndpoint
+	 * @param array $resourceData
+	 * @return Response
+	 */
+	public function updateResource($resourceEndpoint, array $resourceData) {
+		return $this->sendRequest($resourceEndpoint, 'PUT', $resourceData);
+	}
+
+	/**
+	 * @param string $resourceEndpoint
+	 * @return Response
+	 */
+	public function deleteResource($resourceEndpoint) {
+		return $this->sendRequest($resourceEndpoint, 'DELETE');
+	}
+
+	/**
+	 * @param string $resourceUri
+	 * @return array
+	 * @throws Exception\FailedRequestException if response status code is != 2**
+	 */
+	public function getResourceDataByUri($resourceUri) {
+		$response = $this->sendRequest($resourceUri);
+		if (substr($response->getStatusCode(), 0, 1) !== '2') {
+			throw new Exception\FailedRequestException($response, sprintf('Failed to request "%s", status: "%s" (%d)', $uri, $response->getStatus(), $response->getStatusCode()));
+		}
+		return json_decode($response->getContent(), TRUE);
 	}
 
 	/**
 	 * @param string $path relative path to the resource, will be prefixed with rootUri
 	 * @param string $method request method
 	 * @param array $arguments
-	 * @return array
-	 * @throws Exception\FailedRequestException if response status code is != 2**
+	 * @return Response
 	 */
 	public function sendRequest($path, $method = 'GET', array $arguments = array()) {
 		$uri = sprintf('%s/%s', rtrim($this->baseUri, '/'), ltrim($path, '/'));
@@ -144,13 +184,7 @@ class Client {
 		foreach ($this->defaultHeaders as $headerName => $headerValue) {
 			$request->setHeader($headerName, $headerValue);
 		}
-		$response = $this->browser->sendRequest($request);
-		#\TYPO3\Flow\var_dump($response->getContent(), $path);
-		if (substr($response->getStatusCode(), 0, 1) !== '2') {
-			throw new Exception\FailedRequestException($response, sprintf('Failed to request "%s", status: "%s" (%d)', $uri, $response->getStatus(), $response->getStatusCode()));
-		}
-		$responseContent = $response->getContent();
-		return json_decode($responseContent, TRUE);
+		return $this->browser->sendRequest($request);
 	}
 }
 ?>
