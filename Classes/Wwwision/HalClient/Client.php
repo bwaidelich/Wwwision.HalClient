@@ -163,7 +163,7 @@ class Client {
 	public function getResourceDataByUri($resourceUri) {
 		$response = $this->sendRequest($resourceUri);
 		if (substr($response->getStatusCode(), 0, 1) !== '2') {
-			throw new Exception\FailedRequestException($response, sprintf('Failed to request "%s", status: "%s" (%d)', $uri, $response->getStatus(), $response->getStatusCode()));
+			throw new Exception\FailedRequestException($response, sprintf('Failed to request "%s", status: "%s" (%d)', $resourceUri, $response->getStatus(), $response->getStatusCode()));
 		}
 		return json_decode($response->getContent(), TRUE);
 	}
