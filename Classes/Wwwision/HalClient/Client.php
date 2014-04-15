@@ -178,8 +178,12 @@ class Client {
 		$uri = sprintf('%s/%s', rtrim($this->baseUri, '/'), ltrim($path, '/'));
 		$request = Request::create(new Uri($uri), $method, $arguments);
 
-		// FIXME this is currently required as work around for http://forge.typo3.org/issues/51763
-		$request->setContent('');
+		// FIXME this is currently required as work around for http://forge.typo3.org/issues/51763 (also related: https://review.typo3.org/28391)
+		if ($method === 'PUT') {
+			$request->setContent(http_build_query($arguments));
+		} else {
+			$request->setContent('');
+		}
 
 		foreach ($this->defaultHeaders as $headerName => $headerValue) {
 			$request->setHeader($headerName, $headerValue);
